@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FieldView: View {
-    @StateObject var viewModel = FieldTeam()
+    @StateObject var viewModel = ViewModel()
     @GestureState private var dragOffset: CGSize = .zero
     @State private var selectedFormation: Formation = .fourfourtwo
     @State private var placeId: UUID?
@@ -18,6 +18,8 @@ struct FieldView: View {
             isPresentedSelectPlayer.toggle()
         }
     }
+    
+    var team: TeamModel
     
     private func takeScreenshot() -> UIImage? {
         // CODE HERE
@@ -122,39 +124,24 @@ struct FieldView: View {
             VStack(spacing: 2) {
                 ZStack {
                     Image(systemName: "tshirt.fill")
-                        .font(.system(size: UIScreen.main.bounds.width * 0.09))
-                        .foregroundColor(item.player?.name != nil ? .blue : .gray)
+                        .font(.system(size: UIScreen.main.bounds.width * 0.1))
+                        .foregroundColor(item.player?.name != nil ? .accentColor : .gray)
+                        .opacity(0.8)
                 }
                 
-                HStack(spacing: 0) {
-                    ZStack {
-                        Rectangle()
-                            .stroke(.black, lineWidth: 0.7)
-                            .frame(width: UIScreen.main.bounds.width * 0.04,
-                                   height: UIScreen.main.bounds.width * 0.03)
-                            .background(.purple)
-                        
-                        Text("24")
-                            .foregroundColor(.white)
-                            .font(.system(size: UIScreen.main.bounds.width * 0.02, weight: .bold))
-                            .frame(maxWidth: UIScreen.main.bounds.width * 0.035)
-                            .lineLimit(1)
-                    }
-                    
-                    ZStack {
-                        Rectangle()
-                            .stroke(.black, lineWidth: 0.7)
-                            .frame(width: UIScreen.main.bounds.width * 0.11,
-                                   height: UIScreen.main.bounds.width * 0.03)
-                            .background(.white)
+                ZStack {
+                    Rectangle()
+                        .stroke(.black, lineWidth: 0.7)
+                        .frame(width: UIScreen.main.bounds.width * 0.15,
+                               height: UIScreen.main.bounds.width * 0.035)
+                        .background(.white)
 
-                        
-                        Text(item.player?.name ?? "")
-                            .foregroundColor(.black)
-                            .font(.system(size: UIScreen.main.bounds.width * 0.02))
-                            .frame(maxWidth: UIScreen.main.bounds.width * 0.1)
-                            .lineLimit(1)
-                    }
+                    
+                    Text(item.player?.name ?? "")
+                        .foregroundColor(.black)
+                        .font(.system(size: UIScreen.main.bounds.width * 0.025, weight: .semibold))
+                        .frame(maxWidth: UIScreen.main.bounds.width * 0.14)
+                        .lineLimit(1)
                 }
                 
             }
@@ -182,17 +169,28 @@ struct FieldView: View {
             )
         }
         .fullScreenCover(isPresented: $isPresentedSelectPlayer) {
-            SelectPlayerView(delegate: self)
+            SelectPlayerView(team: team.id,delegate: self)
         }
     }
     
     private var header: some View {
         VStack(spacing: 12) {
-            Text("SANTOS FC")
-                .font(.system(size: UIScreen.main.bounds.width * 0.03,
-                              weight: .semibold))
-            Text("🛡️")
-                .font(.system(size: UIScreen.main.bounds.width * 0.15))
+            Text(team.name)
+                .font(.system(size: UIScreen.main.bounds.width * 0.05,
+                              weight: .bold))
+            
+            AsyncImage(
+                url: URL(string: team.logo),
+                content: { image in
+                    image.resizable()
+                         .aspectRatio(contentMode: .fit)
+                         .frame(width: UIScreen.main.bounds.width * 0.25,
+                                height: UIScreen.main.bounds.width * 0.25)
+                },
+                placeholder: {
+                    ProgressView()
+                }
+            )
         }
         .frame(width: UIScreen.main.bounds.width * 0.9)
         .offset(y: UIScreen.main.bounds.height * 0.075)
@@ -253,8 +251,8 @@ struct FieldView: View {
 }
 
 extension FieldView: SelectPlayerViewDelegate {
-    func filterPlayers(_ players: [Player]) -> [Player] {
-        var filteredPlayers: [Player] = []
+    func filterPlayers(_ players: [PlayerModel]) -> [PlayerModel] {
+        var filteredPlayers: [PlayerModel] = []
 
         for player in players {
             let playerNotInPlaces = !viewModel.places.contains(where: {
@@ -269,7 +267,7 @@ extension FieldView: SelectPlayerViewDelegate {
         return filteredPlayers
     }
     
-    func addPlayer(player: Player) {
+    func addPlayer(player: PlayerModel) {
         if let place = self.selectedPlace {
             viewModel.addPlayerToPlace(place, player: player)
         }
@@ -278,6 +276,8 @@ extension FieldView: SelectPlayerViewDelegate {
 
 struct FieldView_Previews: PreviewProvider {
     static var previews: some View {
-        FieldView()
+        FieldView(team: TeamModel(id: 50,
+                                  name: "Manchester City",
+                                  logo: String("https://media-4.api-sports.io//football//teams//50.png") ))
     }
 }

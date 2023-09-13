@@ -7,9 +7,26 @@
 
 import Foundation
 
-class SelectPlayerViewModel: ObservableObject {
-    @Published var players: [Player] = [
-        Player(name: "Ronaldo", position: "ATA"),
-        Player(name: "Ronaldinho", position: "MEI")
-    ]
+extension SelectPlayerView {
+    @MainActor class ViewModel: ObservableObject, PlayerListDataProviderDelegate {
+
+        @Published var players = [PlayerModel]()
+        
+        private let dataProviderPlayer = PlayerListDataProvider()
+        
+        init() {
+            self.dataProviderPlayer.delegate = self
+        }
+        
+        func doFetchPlayers(team: String) {
+            self.dataProviderPlayer.fetchPlayers(team: team)
+            
+        }
+        
+        nonisolated func success(model: [PlayerModel]) {
+            DispatchQueue.main.async {
+                self.players = model
+            }
+        }
+    }
 }

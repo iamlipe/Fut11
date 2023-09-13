@@ -7,38 +7,41 @@
 
 import Foundation
 
-class FieldTeam: ObservableObject {
-    @Published private var model = Field(formation: .fourfourtwo)
-    
-    var positions: [Field.Position] {
-        return model.positions
-    }
-    
-    var places: [Field.Place] {
-        return model.places
-    }
-    
-    var formations: [Formation] {
-        return [.fourfourtwo,
-                .fourthreethree,
-                .fourOneFourOne,
-                .fourFiveOne,
-                .threeFourThree,
-                .threeFiveTwo,
-                .threeOneFiveOne,
-                .fiveThreeTwo,
-                .fiveFourOne]
-    }
-    
-    func movePlayer(_ placeToMove: Field.Place, to: CGPoint) {
-        model.movePlayer(placeToMove, to: to)
-    }
-    
-    func addPlayerToPlace(_ placeToAdd: Field.Place, player: Player) {
-        model.addPlayer(placeToAdd, player: player)
-    }
-    
-    func changeFormation(_ formation: Formation) {
-        model.changeFormation(formation)
+extension FieldView {
+    @MainActor class ViewModel: ObservableObject {
+        @Published private var model = Field(formation: .fourfourtwo)
+        
+        var positions: [Field.Position] {
+            return model.positions
+        }
+        
+        var places: [Field.Place] {
+            return model.places
+        }
+        
+        var formations: [Formation] {
+            return [.fourfourtwo,
+                    .fourthreethree,
+                    .fourOneFourOne,
+                    .fourFiveOne,
+                    .threeFourThree,
+                    .threeFiveTwo,
+                    .threeOneFiveOne,
+                    .fiveThreeTwo,
+                    .fiveFourOne]
+        }
+        
+        func movePlayer(_ placeToMove: Field.Place, to: CGPoint) {
+            model.movePlayer(placeToMove, to: to)
+        }
+        
+        func addPlayerToPlace(_ placeToAdd: Field.Place, player: PlayerModel) {
+            model.addPlayer(placeToAdd, player: player)
+        }
+        
+        func changeFormation(_ formation: Formation) {
+            model.changeFormation(formation)
+        }
     }
 }
+

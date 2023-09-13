@@ -26,9 +26,9 @@ struct Field {
         
         // DEF
         positions.append(Position(CGPoint(x: -fieldWidth/2 + playerSize/2 - playerSize/2 + fieldWidth/5/2 - 0.2 * fieldWidth/5, y: fieldHeight * 0.225)))
-        positions.append(Position(CGPoint(x: -fieldWidth/2 + playerSize/2 - playerSize/2 + fieldWidth/5/2 + 1.1 * fieldWidth/5, y: fieldHeight * 0.25)))
+        positions.append(Position(CGPoint(x: -fieldWidth/2 + playerSize/2 - playerSize/2 + fieldWidth/5/2 + 1.0 * fieldWidth/5, y: fieldHeight * 0.25)))
         positions.append(Position(CGPoint(x: -fieldWidth/2 + playerSize/2 - playerSize/2 + fieldWidth/5/2 + 2.0 * fieldWidth/5, y: fieldHeight * 0.275)))
-        positions.append(Position(CGPoint(x: -fieldWidth/2 + playerSize/2 - playerSize/2 + fieldWidth/5/2 + 2.9 * fieldWidth/5, y: fieldHeight * 0.25)))
+        positions.append(Position(CGPoint(x: -fieldWidth/2 + playerSize/2 - playerSize/2 + fieldWidth/5/2 + 3.0 * fieldWidth/5, y: fieldHeight * 0.25)))
         positions.append(Position(CGPoint(x: -fieldWidth/2 + playerSize/2 - playerSize/2 + fieldWidth/5/2 + 4.2 * fieldWidth/5, y: fieldHeight * 0.225)))
         
         // MEI
@@ -62,7 +62,7 @@ struct Field {
         }
     }
     
-    mutating func addPlayer(_ placeToAdd: Place, player: Player) {
+    mutating func addPlayer(_ placeToAdd: Place, player: PlayerModel) {
         if let placeIndex = places.firstIndex(where: { $0.id == placeToAdd.id }) {
             places[placeIndex].player = player
         }
@@ -116,7 +116,7 @@ struct Field {
     struct Place: Identifiable {
         let id = UUID()
         var position: CGPoint
-        var player: Player?
+        var player: PlayerModel?
     }
     
 }

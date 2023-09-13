@@ -7,8 +7,10 @@
 
 import Foundation
 
-struct Player: Identifiable, Equatable {
-    let id = UUID()
-    var name: String
-    var position: String
+struct PlayerModel: Identifiable, Equatable {
+    let id: Int
+    let name: String
+    let age: Int?
+    let position: String
+    let photo: String
 }

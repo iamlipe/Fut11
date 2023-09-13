@@ -1,17 +1,17 @@
 //
-//  SelectTeamView.swift
+//  SelectLeagueView.swift
 //  Fut11
 //
-//  Created by Felipe Lima on 12/09/23.
+//  Created by Felipe Lima on 13/09/23.
 //
 
 import SwiftUI
 
-protocol SelectTeamViewDelegate {
-    func selectTeam (_ team: TeamModel)
+protocol SelectLeagueViewDelegate {
+    func selectLeague (_ league: LeagueModel)
 }
 
-struct SelectTeamView: View {
+struct SelectLeagueView: View {
     @Environment(\.dismiss) var dismiss
     
     @StateObject var viewModel = ViewModel()
@@ -19,22 +19,21 @@ struct SelectTeamView: View {
     @State var searchText = ""
     @State private var selection: Int?
 
-    var league: Int
-    var delegate: SelectTeamViewDelegate?
+    var delegate: SelectLeagueViewDelegate?
     
-    var filteredTeams: [TeamModel] {
+    var filteredLeagues: [LeagueModel] {
         if searchText.isEmpty {
-            return viewModel.teams
+            return viewModel.leagues
         }
         
-        return viewModel.teams.filter {
+        return viewModel.leagues.filter {
             $0.name.lowercased().contains(searchText.lowercased())
         }
     }
     
     var body: some View {
         NavigationView {
-            List(filteredTeams, id: \.id, selection: $selection) { item in
+            List(filteredLeagues, id: \.id, selection: $selection) { item in
                 HStack {
                     AsyncImage(
                         url: URL(string: item.logo),
@@ -56,12 +55,12 @@ struct SelectTeamView: View {
                 .tag(item.id)
             }
             .searchable(text: $searchText)
-            .navigationTitle("Selecione um Time")
+            .navigationTitle("Selecione uma Liga")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                  Button {
-                     if let team = viewModel.teams.first(where: { $0.id == selection }) {
-                         delegate?.selectTeam(team)
+                     if let league = viewModel.leagues.first(where: { $0.id == selection }) {
+                         delegate?.selectLeague(league)
                      }
                      
                      dismiss()
@@ -71,14 +70,14 @@ struct SelectTeamView: View {
                  }
              }
             .onAppear {
-                viewModel.doFetchTeam(league: String(league))
+                viewModel.doFetchLeagues()
             }
         }
     }
 }
 
-struct SelectTeamView_Previews: PreviewProvider {
+struct SelectLeagueView_Previews: PreviewProvider {
     static var previews: some View {
-        SelectTeamView(league: 33)
+        SelectLeagueView()
     }
 }

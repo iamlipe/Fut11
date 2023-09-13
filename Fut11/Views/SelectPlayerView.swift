@@ -8,49 +8,91 @@
 import SwiftUI
 
 protocol SelectPlayerViewDelegate {
-    func addPlayer (player: Player)
-    func filterPlayers (_ players: [Player]) -> [Player]
+    func addPlayer (player: PlayerModel)
+    func filterPlayers (_ players: [PlayerModel]) -> [PlayerModel]
 }
 
 struct SelectPlayerView: View {
     @Environment(\.dismiss) var dismiss
-        
-    @StateObject var viewModel = SelectPlayerViewModel()
     
-    @State private var selection: UUID?
-    @State private var searchText = ""
-        
-    var delegate: SelectPlayerViewDelegate?
+    @StateObject var viewModel = ViewModel()
+    
+    @State var searchText = ""
+    @State private var selection: Int?
 
-    var body: some View {
-        NavigationView {
-            List(delegate?.filterPlayers(viewModel.players) ?? [], id: \.id, selection: $selection) { item in
-                HStack {
-                    Text(item.name)
+    var team: Int
+    var delegate: SelectPlayerViewDelegate?
+    
+    var filteredPlayers: [PlayerModel] {
+        if let delegate = delegate {
+            if searchText.isEmpty {
+                return delegate.filterPlayers(viewModel.players)
+            } else {
+                return delegate.filterPlayers(viewModel.players).filter {
+                    $0.name.lowercased().contains(searchText.lowercased())
                 }
-                .tag(item.id)
             }
-            .searchable(text: $searchText)
-            .navigationTitle("Selecionar Jogador")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                Button {
-                    if let playerIndex = viewModel.players.firstIndex(where: { $0.id == selection }) {
-                        delegate?.addPlayer(player: viewModel.players[playerIndex])
-                    }
-                    
-                    dismiss()
-                } label: {
-                    Text("Selecionar")
+        } else {
+            if searchText.isEmpty {
+                return viewModel.players
+            } else {
+                return viewModel.players.filter {
+                    $0.name.lowercased().contains(searchText.lowercased())
                 }
             }
         }
-        
+    }
+    
+    var body: some View {
+        NavigationView {
+            List(filteredPlayers, id: \.id, selection: $selection) { item in
+                HStack {
+                    AsyncImage(
+                        url: URL(string: item.photo),
+                        content: { image in
+                            image.resizable()
+                                 .aspectRatio(contentMode: .fit)
+                                 .frame(maxWidth: 36, maxHeight: 36)
+                        },
+                        placeholder: {
+                            ProgressView()
+                        }
+                    )
+                    
+                    Text(item.name)
+                        .font(.system(size: 16, weight: .semibold))
+                        .lineLimit(1)
+                    Text(" - ")
+                    Text(item.position)
+                        .font(.system(size: 16))
+                }
+                .listRowSeparator(.hidden)
+                .tag(item.id)
+            }
+            .searchable(text: $searchText)
+            .navigationTitle("Selecione um Jogador")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                 Button {
+                     if let player = viewModel.players.first(where: { $0.id == selection }) {
+                         delegate?.addPlayer(player: player)
+                     }
+                     
+                     dismiss()
+                 } label: {
+                     Text(selection == nil ? "Cancelar" : "OK")
+                         .fontWeight(.bold)
+                 }
+             }
+            .onAppear {
+                viewModel.doFetchPlayers(team: String(team))
+            }
+        }
     }
 }
 
 struct SelectPlayerView_Previews: PreviewProvider {
     static var previews: some View {
-        SelectPlayerView()
+        SelectPlayerView(team: 32)
     }
 }
